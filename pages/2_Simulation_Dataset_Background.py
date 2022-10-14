@@ -5,7 +5,6 @@ Created on Tue Oct 11 11:33:17 2022
 @author: susym
 """
 
-
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -38,35 +37,41 @@ my_logo = add_logo(logo_path="Soosthsayer_logo.png", width=280, height=100)
 st.sidebar.image(my_logo)
 
 
+valid = st.sidebar.radio(label = "", options = ['Simulation background', 'Dataset details'])
 
-#st.set_page_config(page_title="Need of Simulation",layout = "wide")
-#st.markdown("# Need of Simulation")
+if valid == 'Simulation background':
+    
+    st.title("Why Simulation is Needed?")
+    st.markdown("<hr/>", unsafe_allow_html=True)
+    st.markdown(
+            """
+            Mobility of the fractured segments is often beneficial for the formation of a callus, but it results in substantial loading of the applied fixation device, which may cause stability, strength, or durability related issues.    
+            - Structural analysis is employed to assess bone and fixator deformations, stresses, and strains, which are related to the fixator durability.
+            - For a known fixator configuration and position relative to the bone, structural analysis of bone-fixator systems is performed using the Finite Element Method (FEM).
+            - Using simulation data, an optimization study can be employed to find the optimum shape and dimensions of an existing fixation device. 
+            """
+            )
+    
+    
+    fig_col1, fig_col2, fig_col3  = st.columns([6,1,6])  
 
-st.markdown("<hr/>", unsafe_allow_html=True)
-st.markdown(
-"""
-Mobility of the fractured segments is often beneficial for the formation of a callus, but it results in substantial loading of the applied fixation device, which may cause stability, strength, or durability related issues.    
-- Structural analysis is employed to assess bone and fixator deformations, stresses, and strains, which are related to the fixator durability.
-- For a known fixator configuration and position relative to the bone, structural analysis of bone-fixator systems is performed using the Finite Element Method (FEM).
-- Using simulation data, an optimization study can be employed to find the optimum shape and dimensions of an existing fixation device. 
-"""
-)
-    
-    
-fig_col1, fig_col2, fig_col3  = st.columns([6,1,6])  
-
-with fig_col1:
-    image = Image.open('FEA model SIF-Femur asssembly.jpg')
-    st.image(image, width=450,caption='Finite element (FE) model of the femur–SIF assembly')
+    with fig_col1:
+        image = Image.open('FEA model SIF-Femur asssembly.jpg')
+        st.image(image, width=450,caption='Finite element (FE) model of the femur–SIF assembly')
     
     
     
-with fig_col3: 
-    image = Image.open('stress field_1.png')
-    st.image(image, width=400,caption='Stress field of the fixator (from FEA simulation)')
+    with fig_col3: 
+        image = Image.open('stress field_1.png')
+        st.image(image, width=400,caption='Stress field of the fixator (from FEA simulation)')
     
 
-df6=pd.read_csv("./DOE6.csv", 
+   
+#df6.head()
+
+else:
+    st.title("Simulation Dataset")
+    df6=pd.read_csv("./DOE6.csv", 
                 skiprows=4, 
                 names=['Name',
                        'Bar length',
@@ -90,7 +95,17 @@ df6=pd.read_csv("./DOE6.csv",
                          'Total Deformation Maximum',
                          'Equivalent Stress',
                          'Fixator Mass'])
-#df6.head()
-with st.expander("Simulation dataset"):
+    st.markdown('The number of designpoint used for training AI model: ' + str(df6.shape[0]))
+    st.markdown("<hr/>", unsafe_allow_html=True)
+    
+    fig_col1, fig_col2, fig_col3  = st.columns([1,2,1]) 
+    with fig_col2:
+        image = Image.open('parametric model.jpg')
+        st.image(image,caption='CAD model of the SIF')
+    
+    
+     
+    
     st.dataframe(df6)
+    
     

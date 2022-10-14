@@ -40,11 +40,11 @@ st.sidebar.image(my_logo)
 
 
 #st.markdown("<h5 style='text-align: left; color: black;'> Product background </h5>", unsafe_allow_html=True)
-
+st.title("Selfdynamisable internal fixator (SIF)")
 st.markdown("<hr/>", unsafe_allow_html=True)
 st.markdown(
 """
-The product is selfdynamisable internal fixator (SIF), which is used in internal fixation of long thigh bones fractures (femur fractures).   
+SIF is used in internal fixation of long thigh bones fractures (femur fractures).   
 - The SIF comprises of a bar with anti-rotating screw in the dynamic unit on one end, with two clamps with corresponding locking screws and the trochanteric unit on the opposite end with two dynamic hip screws inside. 
 - Similar to other fixation devices, the SIF represents the ultimate standard in internal fixation and in the healing of fractures without mechanical failure (e.g., bending of the bar or breaking of screws).
 """

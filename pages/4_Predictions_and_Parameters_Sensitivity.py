@@ -99,22 +99,35 @@ y_pred_test_3 = model3.predict(X_test)
 # create columns for the chars
 #st.markdown("<hr/>", unsafe_allow_html=True)
 
-fig_col0, fig_col1, fig_col2, fig_col3 = st.columns([0.8,1,1,1])
-with fig_col0:
-        st.markdown("Input Parameters")
-        a = st.slider('Bar length', min_value=100, max_value=250, step=10)
-        b = st.slider('Bar diameter', min_value=8.0, max_value=10.0, step=0.1)
-        c = st.slider('Bar end thickness', min_value=4.0, max_value=6.5, step=0.1)
-        d  = st.slider('Radius trochanteric unit', min_value=3.0, max_value=10.0, step=0.1)
-        e  = st.slider('Radius bar end', min_value=6.0, max_value=10.0, step=0.1)
-        f  = st.slider('Clamp distance', min_value=1.0, max_value=28.0, step=0.5)   
-        input_data = np.array([a,b,c,d,e,f]).reshape(1,-1)
+valid = st.sidebar.radio(label = "", options = ['Performance prediction', 'Parameteres sensitivity'])
+    
 
-       
-   
-   
-   
-with fig_col1:
+if valid == 'Performance prediction':
+    st.title("Design Performance Predictions")   
+    st.write("The design performances are: 1) Total Deformation Maximum 2) Equivalent Stress 3) Fixator Mass")
+    #st.markdown("Input Parameters")
+    st.markdown("<hr/>", unsafe_allow_html=True) 
+    
+    fig_col0, fig_col1, fig_col2, fig_col3, fig_col4, fig_col5 = st.columns(6)
+    with fig_col0:
+        a = st.slider('Bar length', min_value=100, max_value=250, step=10)
+    with fig_col1:
+        b = st.slider('Bar diameter', min_value=8.0, max_value=10.0, step=0.1)
+    with fig_col2:
+        c = st.slider('Bar end thickness', min_value=4.0, max_value=6.5, step=0.1)
+    with fig_col3:
+        d  = st.slider('Radius trochanteric unit', min_value=3.0, max_value=10.0, step=0.1)
+    with fig_col4:
+        e  = st.slider('Radius bar end', min_value=6.0, max_value=10.0, step=0.1)
+    with fig_col5:
+        f  = st.slider('Clamp distance', min_value=1.0, max_value=28.0, step=0.5)
+    
+    st.markdown("<hr/>", unsafe_allow_html=True) 
+    #st.markdown("Output performances")
+    input_data = np.array([a,b,c,d,e,f]).reshape(1,-1)
+    fig_col1, fig_col2, fig_col3 = st.columns(3)
+    
+    with fig_col1:
         y_pred_1 = model1.predict(input_data)
         fig = go.Figure(go.Indicator(
                 domain = {'x': [0, 1], 'y': [0, 1]},
@@ -132,7 +145,7 @@ with fig_col1:
         fig.update_layout(autosize=False, width=350,height=400)
         st.write(fig)
     
-with fig_col2:
+    with fig_col2:
         y_pred_2 = model2.predict(input_data)
         fig = go.Figure(go.Indicator(
                 domain = {'x': [0, 1], 'y': [0, 1]},
@@ -150,7 +163,7 @@ with fig_col2:
         st.write(fig)
     
     
-with fig_col3:
+    with fig_col3:
         y_pred_3 = model3.predict(input_data)
         fig = go.Figure(go.Indicator(
                 domain = {'x': [0, 1], 'y': [0, 1]},
@@ -170,8 +183,11 @@ with fig_col3:
         
     
 
-with st.expander("Design parameters sensitivity"):
-    st.write("The importance score of the input design parameters")
+else:
+    st.title("Design Parameters Sensitivity")   
+    st.write("The importance score for each input parameter")
+    st.markdown("<hr/>", unsafe_allow_html=True) 
+
     
     fig_col1, fig_col2, fig_col3  = st.columns([1,3,1])  
 
