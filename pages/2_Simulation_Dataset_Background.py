@@ -22,55 +22,88 @@ from PIL import Image
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 warnings.filterwarnings("ignore")
+import base64
 
 
 st.set_page_config(layout="wide")
 
 
-def add_logo(logo_path, width, height):
-    """Read and return a resized logo"""
-    logo = Image.open(logo_path)
-    modified_logo = logo.resize((width, height))
-    return modified_logo
 
-my_logo = add_logo(logo_path="Soosthsayer_logo.png", width=280, height=100)
-st.sidebar.image(my_logo)
+@st.cache(allow_output_mutation=True)
+def get_base64_of_bin_file(png_file):
+    with open(png_file, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
 
-valid = st.sidebar.radio(label = "", options = ['Simulation background', 'Dataset details'])
+def build_markup_for_logo(
+    png_file,
+    background_position="50% 2%",
+    margin_top="10%",
+    image_width="90%",
+    image_height="",
+):
+    binary_string = get_base64_of_bin_file(png_file)
+    return """
+            <style>
+                [data-testid="stSidebarNav"] {
+                    background-image: url("data:image/png;base64,%s");
+                    background-repeat: no-repeat;
+                    background-position: %s;
+                    margin-top: %s;
+                    background-size: %s %s;
+                }
+            </style>
+            """ % (
+        binary_string,
+        background_position,
+        margin_top,
+        image_width,
+        image_height,
+    )
 
-if valid == 'Simulation background':
-    
-    st.title("Why Simulation is Needed?")
-    st.markdown("<hr/>", unsafe_allow_html=True)
+
+def add_logo(png_file):
+    logo_markup = build_markup_for_logo(png_file)
     st.markdown(
-            """
-            Mobility of the fractured segments is often beneficial for the formation of a callus, but it results in substantial loading of the applied fixation device, which may cause stability, strength, or durability related issues.    
-            - Structural analysis is employed to assess bone and fixator deformations, stresses, and strains, which are related to the fixator durability.
-            - For a known fixator configuration and position relative to the bone, structural analysis of bone-fixator systems is performed using the Finite Element Method (FEM).
-            - Using simulation data, an optimization study can be employed to find the optimum shape and dimensions of an existing fixation device. 
-            """
-            )
-    
-    
-    fig_col1, fig_col2, fig_col3  = st.columns([6,1,6])  
+        logo_markup,
+        unsafe_allow_html=True,
+    )
 
-    with fig_col1:
-        image = Image.open('FEA model SIF-Femur asssembly.jpg')
-        st.image(image, width=450,caption='Finite element (FE) model of the femur–SIF assembly')
+add_logo("Soosthsayer_logo.png")
+
+
+
+
+st.title("Why Simulation is Needed?")
+st.markdown("<hr/>", unsafe_allow_html=True)
+st.markdown(
+"""
+Mobility of the fractured segments is often beneficial for the formation of a callus, but it results in substantial loading of the applied fixation device, which may cause stability, strength, or durability related issues.    
+- Structural analysis is employed to assess bone and fixator deformations, stresses, and strains, which are related to the fixator durability.
+- For a known fixator configuration and position relative to the bone, structural analysis of bone-fixator systems is performed using the Finite Element Method (FEM).
+- Using simulation data, an optimization study can be employed to find the optimum shape and dimensions of an existing fixation device. 
+"""
+)
+    
+    
+fig_col1, fig_col2, fig_col3  = st.columns([6,1,6])  
+
+with fig_col1:
+    image = Image.open('FEA model SIF-Femur asssembly.jpg')
+    st.image(image, width=450,caption='Finite element (FE) model of the femur–SIF assembly')
     
     
     
-    with fig_col3: 
-        image = Image.open('stress field_1.png')
-        st.image(image, width=400,caption='Stress field of the fixator (from FEA simulation)')
+with fig_col3: 
+    image = Image.open('stress field_1.png')
+    st.image(image, width=400,caption='Stress field of the fixator (from FEA simulation)')
     
 
+ 
+
+with st.expander("Simulation Dataset"):
    
-#df6.head()
-
-else:
-    st.title("Simulation Dataset")
     df6=pd.read_csv("./DOE6.csv", 
                 skiprows=4, 
                 names=['Name',

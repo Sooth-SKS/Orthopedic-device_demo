@@ -22,20 +22,57 @@ from PIL import Image
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 warnings.filterwarnings("ignore")
+import base64
+
 
 
 
 st.set_page_config(layout="wide")
 
 
-def add_logo(logo_path, width, height):
-    """Read and return a resized logo"""
-    logo = Image.open(logo_path)
-    modified_logo = logo.resize((width, height))
-    return modified_logo
+@st.cache(allow_output_mutation=True)
+def get_base64_of_bin_file(png_file):
+    with open(png_file, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
-my_logo = add_logo(logo_path="Soosthsayer_logo.png", width=280, height=100)
-st.sidebar.image(my_logo)
+
+def build_markup_for_logo(
+    png_file,
+    background_position="50% 2%",
+    margin_top="10%",
+    image_width="90%",
+    image_height="",
+):
+    binary_string = get_base64_of_bin_file(png_file)
+    return """
+            <style>
+                [data-testid="stSidebarNav"] {
+                    background-image: url("data:image/png;base64,%s");
+                    background-repeat: no-repeat;
+                    background-position: %s;
+                    margin-top: %s;
+                    background-size: %s %s;
+                }
+            </style>
+            """ % (
+        binary_string,
+        background_position,
+        margin_top,
+        image_width,
+        image_height,
+    )
+
+
+def add_logo(png_file):
+    logo_markup = build_markup_for_logo(png_file)
+    st.markdown(
+        logo_markup,
+        unsafe_allow_html=True,
+    )
+
+add_logo("Soosthsayer_logo.png")
+
 
 
 

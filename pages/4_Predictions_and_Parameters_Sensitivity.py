@@ -22,19 +22,57 @@ from PIL import Image
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 warnings.filterwarnings("ignore")
+import base64
+
 
 
 st.set_page_config(layout="wide")
 
 
-def add_logo(logo_path, width, height):
-    """Read and return a resized logo"""
-    logo = Image.open(logo_path)
-    modified_logo = logo.resize((width, height))
-    return modified_logo
 
-my_logo = add_logo(logo_path="Soosthsayer_logo.png", width=280, height=100)
-st.sidebar.image(my_logo)
+@st.cache(allow_output_mutation=True)
+def get_base64_of_bin_file(png_file):
+    with open(png_file, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+
+def build_markup_for_logo(
+    png_file,
+    background_position="50% 2%",
+    margin_top="10%",
+    image_width="90%",
+    image_height="",
+):
+    binary_string = get_base64_of_bin_file(png_file)
+    return """
+            <style>
+                [data-testid="stSidebarNav"] {
+                    background-image: url("data:image/png;base64,%s");
+                    background-repeat: no-repeat;
+                    background-position: %s;
+                    margin-top: %s;
+                    background-size: %s %s;
+                }
+            </style>
+            """ % (
+        binary_string,
+        background_position,
+        margin_top,
+        image_width,
+        image_height,
+    )
+
+
+def add_logo(png_file):
+    logo_markup = build_markup_for_logo(png_file)
+    st.markdown(
+        logo_markup,
+        unsafe_allow_html=True,
+    )
+
+add_logo("Soosthsayer_logo.png")
+
 
 
 df6=pd.read_csv("./DOE6.csv", 
@@ -99,55 +137,55 @@ y_pred_test_3 = model3.predict(X_test)
 # create columns for the chars
 #st.markdown("<hr/>", unsafe_allow_html=True)
 
-valid = st.sidebar.radio(label = "", options = ['Performance prediction', 'Parameteres sensitivity'])
+#valid = st.sidebar.radio(label = "", options = ['Performance prediction', 'Parameteres sensitivity'])
     
 
-if valid == 'Performance prediction':
-    st.title("Design Performance Predictions")   
-    st.write("The design performances are: 1) Total Deformation Maximum 2) Equivalent Stress 3) Fixator Mass")
+#if valid == 'Performance prediction':
+st.title("Design Performance Predictions")   
+st.write("The design performances are: 1) Total Deformation Maximum 2) Equivalent Stress 3) Fixator Mass")
     #st.markdown("Input Parameters")
-    st.markdown("<hr/>", unsafe_allow_html=True) 
+st.markdown("<hr/>", unsafe_allow_html=True) 
     
-    fig_col0, fig_col1, fig_col2, fig_col3, fig_col4, fig_col5 = st.columns(6)
-    with fig_col0:
-        a = st.slider('Bar length', min_value=100, max_value=250, step=10)
-    with fig_col1:
-        b = st.slider('Bar diameter', min_value=8.0, max_value=10.0, step=0.1)
-    with fig_col2:
-        c = st.slider('Bar end thickness', min_value=4.0, max_value=6.5, step=0.1)
-    with fig_col3:
-        d  = st.slider('Radius trochanteric unit', min_value=3.0, max_value=10.0, step=0.1)
-    with fig_col4:
-        e  = st.slider('Radius bar end', min_value=6.0, max_value=10.0, step=0.1)
-    with fig_col5:
-        f  = st.slider('Clamp distance', min_value=1.0, max_value=28.0, step=0.5)
+fig_col0, fig_col1, fig_col2, fig_col3, fig_col4, fig_col5 = st.columns(6)
+with fig_col0:
+    a = st.slider('Bar length', min_value=100, max_value=250, step=10)
+with fig_col1:
+    b = st.slider('Bar diameter', min_value=8.0, max_value=10.0, step=0.1)
+with fig_col2:
+    c = st.slider('Bar end thickness', min_value=4.0, max_value=6.5, step=0.1)
+with fig_col3:
+    d  = st.slider('Radius trochanteric unit', min_value=3.0, max_value=10.0, step=0.1)
+with fig_col4:
+    e  = st.slider('Radius bar end', min_value=6.0, max_value=10.0, step=0.1)
+with fig_col5:
+    f  = st.slider('Clamp distance', min_value=1.0, max_value=28.0, step=0.5)
     
-    st.markdown("<hr/>", unsafe_allow_html=True) 
+st.markdown("<hr/>", unsafe_allow_html=True) 
     #st.markdown("Output performances")
-    input_data = np.array([a,b,c,d,e,f]).reshape(1,-1)
-    fig_col1, fig_col2, fig_col3 = st.columns(3)
+input_data = np.array([a,b,c,d,e,f]).reshape(1,-1)
+fig_col1, fig_col2, fig_col3 = st.columns(3)
     
-    with fig_col1:
-        y_pred_1 = model1.predict(input_data)
-        fig = go.Figure(go.Indicator(
-                domain = {'x': [0, 1], 'y': [0, 1]},
-                value = round(y_pred_1[0],2),
-                mode = "gauge+number+delta",
-                title = {'text': "Total Deformation Maximum"},
-                delta = {'reference': 18, 'increasing': {'color': "red"},'decreasing': {'color': "green"}},
-                gauge = {'axis': {'range': [0, 20]},
-                                  'bar': {'color': "black"},
-                                  'steps' : [
-                                          {'range': [0, 10], 'color': "lightgreen "},
-                                          {'range': [10, 15], 'color': "yellow"},
-                                          {'range': [15, 20], 'color': "red"}],
+with fig_col1:
+    y_pred_1 = model1.predict(input_data)
+    fig = go.Figure(go.Indicator(
+            domain = {'x': [0, 1], 'y': [0, 1]},
+            value = round(y_pred_1[0],2),
+            mode = "gauge+number+delta",
+            title = {'text': "Total Deformation Maximum"},
+            delta = {'reference': 18, 'increasing': {'color': "red"},'decreasing': {'color': "green"}},
+            gauge = {'axis': {'range': [0, 20]},
+                                 'bar': {'color': "black"},
+                                 'steps' : [
+                                         {'range': [0, 10], 'color': "lightgreen "},
+                                         {'range': [10, 15], 'color': "yellow"},
+                                         {'range': [15, 20], 'color': "red"}],
                                           'threshold' : {'line': {'color': "darkblue", 'width': 6}, 'thickness': 0.75, 'value': 18}}))
-        fig.update_layout(autosize=False, width=350,height=400)
-        st.write(fig)
+    fig.update_layout(autosize=False, width=350,height=400)
+    st.write(fig)
     
-    with fig_col2:
-        y_pred_2 = model2.predict(input_data)
-        fig = go.Figure(go.Indicator(
+with fig_col2:
+    y_pred_2 = model2.predict(input_data)
+    fig = go.Figure(go.Indicator(
                 domain = {'x': [0, 1], 'y': [0, 1]},
                 value = round(y_pred_2[0],2),
                 mode = "gauge+number+delta",
@@ -159,13 +197,13 @@ if valid == 'Performance prediction':
                                           {'range': [200, 500], 'color': "yellow"},
                                           {'range': [500, 800], 'color': "red"}],
                                           'threshold' : {'line': {'color': "darkblue", 'width': 4}, 'thickness': 0.75, 'value': 600}}))
-        fig.update_layout(autosize=False, width=350, height=400)
-        st.write(fig)
+    fig.update_layout(autosize=False, width=350, height=400)
+    st.write(fig)
     
     
-    with fig_col3:
-        y_pred_3 = model3.predict(input_data)
-        fig = go.Figure(go.Indicator(
+with fig_col3:
+    y_pred_3 = model3.predict(input_data)
+    fig = go.Figure(go.Indicator(
                 domain = {'x': [0, 1], 'y': [0, 1]},
                 value = round(y_pred_3[0],2),
                 mode = "gauge+number+delta",
@@ -178,28 +216,8 @@ if valid == 'Performance prediction':
                                           {'range': [0.1, 0.3], 'color': "yellow"},
                                           {'range': [0.3, 0.6], 'color': "red"}],
                                           'threshold' : {'line': {'color': "darkblue", 'width': 4}, 'thickness': 0.75, 'value': 0.25}}))
-        fig.update_layout(autosize=False,width=350, height=400)
-        st.write(fig)
+    fig.update_layout(autosize=False,width=350, height=400)
+    st.write(fig)
         
     
 
-else:
-    st.title("Design Parameters Sensitivity")   
-    st.write("The importance score for each input parameter")
-    st.markdown("<hr/>", unsafe_allow_html=True) 
-
-    
-    fig_col1, fig_col2, fig_col3  = st.columns([1,3,1])  
-
-    with fig_col2:
-        feature_importances = pd.DataFrame(model2.feature_importances_,index = df6.columns[0:6],columns=['importance']).sort_values('importance', ascending=False)
-        num = feature_importances.shape[0]
-        ylocs = np.linspace(1,num,num)
-        values_to_plot = feature_importances[:num].values.ravel()[::-1]
-        feature_labels = list(feature_importances[:num].index)[::-1]
-        #plt.figure(num=None, facecolor='w', edgecolor='k');
-        plt.barh(ylocs, values_to_plot, align = 'center', height = 0.8)
-        plt.ylabel('Features')
-        plt.xlabel('Featur importance score')
-        plt.yticks(ylocs, feature_labels)
-        st.pyplot(plt)
